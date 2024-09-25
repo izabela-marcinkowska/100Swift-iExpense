@@ -32,23 +32,42 @@ class Expenses{
 struct ContentView: View {
     @State private var expenses = Expenses()
     @State private var showingAddExpense = false
-
+    
     var body: some View {
         NavigationStack {
             List {
-                ForEach(expenses.items) { item in
-                    HStack {
-                        VStack (alignment: .leading) {
-                            Text(item.name)
-                                .font(.headline)
-                            Text(item.type)
+                Section ("Personal Expenses") {
+                    ForEach(expenses.items) { item in
+                        if(item.type == "Personal") {
+                            HStack {
+                                VStack (alignment: .leading) {
+                                    Text(item.name)
+                                        .font(.headline)
+                                    Text(item.type)
+                                }
+                                Spacer()
+                                Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                                    .foregroundStyle(item.amount < 100 ? .green : .red)
+                            }
                         }
-                        Spacer()
-                        Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
-                    }
+                    }.onDelete(perform: removeItems)
                 }
-                .onDelete(perform: removeItems)
-                
+                Section ("Business Expenses") {
+                    ForEach(expenses.items) { item in
+                        if(item.type == "Business") {
+                            HStack {
+                                VStack (alignment: .leading) {
+                                    Text(item.name)
+                                        .font(.headline)
+                                    Text(item.type)
+                                }
+                                Spacer()
+                                Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                                    .foregroundStyle(item.amount < 100 ? .green : .red)
+                            }
+                        }
+                    }.onDelete(perform: removeItems)
+                }
             }.navigationTitle("iExpense")
                 .toolbar {
                     Button("Add expense", systemImage: "plus") {
@@ -58,7 +77,6 @@ struct ContentView: View {
                 .sheet(isPresented: $showingAddExpense) {
                     AddView(expenses: expenses)
                 }
-
         }
     }
     func removeItems(at offsets: IndexSet) {
