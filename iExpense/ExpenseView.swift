@@ -12,10 +12,12 @@ struct ExpenseView: View {
     @Query var expenses: [Expense]
     @Environment(\.modelContext) var modelContext
     
-    init(filterType: String) {
+    init(filterType: String, sortOrder: [SortDescriptor<Expense>]) {
         _expenses = Query(filter: #Predicate<Expense> { expense in
             expense.type == filterType
-        })
+        },
+        sort: sortOrder
+        )
     }
     
     func removeItems(at offsets: IndexSet) {
@@ -64,5 +66,8 @@ struct ExpenseView: View {
 }
 
 #Preview {
-    ExpenseView(filterType: "Business")
+    ExpenseView(filterType: "Business", sortOrder: [
+        SortDescriptor(\Expense.name),
+        SortDescriptor(\Expense.amount)
+    ])
 }
