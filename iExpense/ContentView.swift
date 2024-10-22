@@ -12,14 +12,18 @@ struct ContentView: View {
     @Query var expenses: [Expense]
     @State private var showingAddExpense = false
     @Environment(\.modelContext) var modelContext
+    @State private var showingBussinessExpenses: Bool = false
     
     var body: some View {
         NavigationStack {
-            ExpenseView(filterType: "Business")
+            ExpenseView(filterType: showingBussinessExpenses ? "Business" : "Personal")
             .navigationTitle("iExpense")
                 .toolbar {
                     NavigationLink("Add new") {
                         AddView()
+                    }
+                    Button(showingBussinessExpenses ? "Show Personal" : "Show  Bussiness") {
+                        showingBussinessExpenses.toggle()
                     }
                 }
                 
