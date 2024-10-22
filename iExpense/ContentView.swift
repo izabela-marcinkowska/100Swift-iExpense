@@ -6,38 +6,18 @@
 //
 
 import SwiftUI
-
-@Observable
-class Expenses{
-    var items = [ExpenseItem]() {
-        didSet {
-            if let encoded = try? JSONEncoder().encode(items) {
-                UserDefaults.standard.set(encoded, forKey: "Items")
-            }
-        }
-        
-    }
-    init() {
-        if let savedItems = UserDefaults.standard.data(forKey: "Items") {
-            if let decodedItems = try? JSONDecoder().decode([ExpenseItem].self, from: savedItems) {
-                items = decodedItems
-                return
-            }
-        }
-        items = []
-    }
-}
-
+import SwiftData
 
 struct ContentView: View {
-    @State private var expenses = Expenses()
+    @Query var expenses: [Expense]
     @State private var showingAddExpense = false
+    @Environment(\.modelContext) var modelContext
     
     var body: some View {
         NavigationStack {
             List {
                 Section ("Personal Expenses") {
-                    ForEach(expenses.items) { item in
+                    ForEach(expenses) { item in
                         if(item.type == "Personal") {
                             HStack {
                                 VStack (alignment: .leading) {
@@ -53,7 +33,7 @@ struct ContentView: View {
                     }.onDelete(perform: removeItems)
                 }
                 Section ("Business Expenses") {
-                    ForEach(expenses.items) { item in
+                    ForEach(expenses) { item in
                         if(item.type == "Business") {
                             HStack {
                                 VStack (alignment: .leading) {
@@ -71,14 +51,17 @@ struct ContentView: View {
             }.navigationTitle("iExpense")
                 .toolbar {
                     NavigationLink("Add new") {
-                        AddView(expenses: expenses)
+                        AddView()
                     }
                 }
                 
         }
     }
     func removeItems(at offsets: IndexSet) {
-        expenses.items.remove(atOffsets: offsets)
+        for offset in offsets {
+            let expense = expenses[offset]
+            modelContext.delete(expense)
+        }
     }
 }
 

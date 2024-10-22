@@ -11,8 +11,8 @@ struct AddView: View {
     @State private var name = "Add new name"
     @State private var type = "Personal"
     @State private var amount = 0.0
-    var expenses: Expenses
     @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) var modelContext
     
     let types = ["Personal", "Business"]
     
@@ -34,8 +34,10 @@ struct AddView: View {
                     dismiss()
                 }
                 Button("Save") {
-                    let item = ExpenseItem(name: name, type: type, amount: amount)
-                    expenses.items.append(item)
+                    let item = Expense(id: UUID(), name: name, type: type, amount: amount)
+                    print("I created: \(item.name)")
+                    modelContext.insert(item)
+                    print("I saved item")
                     dismiss()
                 }
                 
@@ -46,5 +48,5 @@ struct AddView: View {
 }
 
 #Preview {
-    AddView(expenses: Expenses())
+    AddView()
 }
